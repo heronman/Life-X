@@ -10,11 +10,11 @@ public class ActionsController implements ActionListener {
 
 	private final HashSet<Object> responders = new HashSet<Object>();
 
-	public ActionsController () {
+	public ActionsController() {
 	}
 
 	public void addResponder(Object o) {
-		if(o != this)
+		if (o != this)
 			responders.add(o);
 	}
 
@@ -26,13 +26,13 @@ public class ActionsController implements ActionListener {
 		StringBuilder sb = new StringBuilder("action");
 		boolean big = true;
 		int l = cmd.length();
-		for(int i = 0;i < l;i++) {
+		for (int i = 0; i < l; i++) {
 			char c = cmd.charAt(i);
-			if(c == '-') {
+			if (c == '-') {
 				big = true;
 				continue;
 			}
-			if(big) {
+			if (big) {
 				c = Character.toUpperCase(c);
 				big = false;
 			}
@@ -44,28 +44,25 @@ public class ActionsController implements ActionListener {
 	public boolean actionPerformed(Object o, String methodName, ActionEvent e) {
 		try {
 			Method method = o.getClass().getMethod(methodName, ActionEvent.class);
-			if(method != null) {
+			if (method != null) {
 				method.invoke(o, e);
 				return true;
 			}
-		} catch(SecurityException
-				| IllegalAccessException
-				| IllegalArgumentException
-				| InvocationTargetException ex) {
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
 			throw new RuntimeException(ex);
 		} catch (NoSuchMethodException ex) {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String mname = getActionMethodName(e.getActionCommand());
-		for(Object r : responders) {
-			if(actionPerformed(r, mname, e))
+		for (Object r : responders) {
+			if (actionPerformed(r, mname, e))
 				return;
 		}
-		if(!actionPerformed(this, mname, e)) {
+		if (!actionPerformed(this, mname, e)) {
 			System.err.println("Method not found for action " + e.getActionCommand());
 		}
 	}

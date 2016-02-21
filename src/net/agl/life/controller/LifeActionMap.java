@@ -31,10 +31,10 @@ public class LifeActionMap extends ActionMap {
 		this.listener = listener;
 		Object[] keys = keys();
 
-		for(int i = 0;i < keys.length;i++) {
+		for (int i = 0; i < keys.length; i++) {
 			Action a = get(keys[i]);
-			if(a instanceof LifeAction) {
-				((LifeAction)a).setActionListener(listener);
+			if (a instanceof LifeAction) {
+				((LifeAction) a).setActionListener(listener);
 			}
 		}
 	}
@@ -42,8 +42,8 @@ public class LifeActionMap extends ActionMap {
 	@Override
 	public void put(Object key, Action action) {
 		super.put(key, action);
-		if(listener != null && action instanceof LifeAction) {
-			((LifeAction)action).setActionListener(listener);
+		if (listener != null && action instanceof LifeAction) {
+			((LifeAction) action).setActionListener(listener);
 		}
 	}
 
@@ -58,7 +58,7 @@ public class LifeActionMap extends ActionMap {
 				setIcon(new ImageIcon(Tools.loadImage("icons/New document.png")));
 			}
 		});
-		
+
 		put("open", new LifeAction() {
 			{
 				setText("Open...");
@@ -69,18 +69,18 @@ public class LifeActionMap extends ActionMap {
 				setIcon(new ImageIcon(Tools.loadImage("icons/Open.png")));
 			}
 		});
-		
+
 		put("save", new LifeAction() {
 			{
 				setText("Save");
 				setActionCommand("save");
 				setAccelerator(KeyStroke.getKeyStroke("control S"));
 				setMnemonic(KeyEvent.VK_S);
-//				setEnabled(false);
+				// setEnabled(false);
 				setIcon(new ImageIcon(Tools.loadImage("icons/Save.png")));
 			}
 		});
-		
+
 		put("save-as", new LifeAction() {
 			{
 				setText("Save as...");
@@ -92,7 +92,7 @@ public class LifeActionMap extends ActionMap {
 				setIcon(new ImageIcon(Tools.loadImage("icons/Save as.png")));
 			}
 		});
-		
+
 		put("import", new LifeAction() {
 			{
 				setText("Import...");
@@ -100,7 +100,7 @@ public class LifeActionMap extends ActionMap {
 				setMnemonic(KeyEvent.VK_I);
 			}
 		});
-		
+
 		put("export", new LifeAction() {
 			{
 				setText("Export...");
@@ -108,7 +108,7 @@ public class LifeActionMap extends ActionMap {
 				setMnemonic(KeyEvent.VK_E);
 			}
 		});
-		
+
 		put("exit", new LifeAction() {
 			{
 				setText("Exit");
@@ -120,7 +120,7 @@ public class LifeActionMap extends ActionMap {
 				setIcon(new ImageIcon(Tools.loadImage("icons/Exit.png")));
 			}
 		});
-		
+
 		put("copy", new LifeAction() {
 			{
 				setText("Copy");
@@ -144,7 +144,7 @@ public class LifeActionMap extends ActionMap {
 				setIcon(new ImageIcon(Tools.loadImage("icons/Cut.png")));
 			}
 		});
-		
+
 		put("paste", new LifeAction() {
 			{
 				setText("Paste");
@@ -156,7 +156,7 @@ public class LifeActionMap extends ActionMap {
 				setIcon(new ImageIcon(Tools.loadImage("icons/Paste.png")));
 			}
 		});
-		
+
 		put("delete", new LifeAction() {
 			{
 				setText("Delete");
@@ -168,7 +168,7 @@ public class LifeActionMap extends ActionMap {
 				setIcon(new ImageIcon(Tools.loadImage("icons/Paste.png")));
 			}
 		});
-		
+
 		put("select-all", new LifeAction() {
 			{
 				setText("Select all");
@@ -177,7 +177,7 @@ public class LifeActionMap extends ActionMap {
 				setAccelerator(KeyStroke.getKeyStroke("control A"));
 			}
 		});
-		
+
 		put("deselect", new LifeAction() {
 			{
 				setText("Deselect");
@@ -187,7 +187,7 @@ public class LifeActionMap extends ActionMap {
 				setEnabled(false);
 			}
 		});
-		
+
 		put("snapshot", new LifeAction() {
 			{
 				setText("Take snapshot");

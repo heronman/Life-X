@@ -20,15 +20,15 @@ public class LifeToolBar extends JToolBar {
 	public final JButton btnCopy;
 	public final JButton btnCut;
 	public final JButton btnResize;
-	
+
 	public static class ToolbarButton extends JButton {
 		public ToolbarButton(Action action) {
 			super(action);
 			setFocusable(false);
 			setText(null);
-			if(action instanceof LifeAction) {
-				setIconTextGap(((LifeAction)action).getIconTextGap());
-				setVisible(((LifeAction)action).isVisible());
+			if (action instanceof LifeAction) {
+				setIconTextGap(((LifeAction) action).getIconTextGap());
+				setVisible(((LifeAction) action).isVisible());
 			}
 
 		}

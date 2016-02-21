@@ -18,8 +18,8 @@ import net.agl.life.view.LifeStatusBar;
 import net.agl.life.view.LifeToolBar;
 
 public class Application implements Runnable {
-//	public static final Application app = new Application();
-	
+	// public static final Application app = new Application();
+
 	public final LifeController controller;
 	public final ActionsController actionsController;
 	public final ActionMap actions;
@@ -28,7 +28,7 @@ public class Application implements Runnable {
 	public final LifeToolBar toolBar;
 	public final JMenuBar menuBar;
 	public final JFrame frame;
-	public final JPanel ui; 
+	public final JPanel ui;
 
 	public Application() {
 		frame = new JFrame();

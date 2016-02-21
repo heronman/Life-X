@@ -33,11 +33,11 @@ public class LifeAction implements Action {
 	public static final String ICON_DISABLED_KEY = "DisabledIcon";
 	public static final String ICON_ROLLOVER_SELECTED_KEY = "RolloverSelectedIcon";
 	public static final String ICON_DISABLED_SELECTED_KEY = "DisabledSelectedIcon";
-	
+
 	public static final Map<String, String> KEYS;
 
 	static {
-		Map<String, String> keys = new HashMap<String, String> ();
+		Map<String, String> keys = new HashMap<String, String>();
 		keys.put(Action.SHORT_DESCRIPTION, "toolTipText");
 		keys.put(Action.ACTION_COMMAND_KEY, "actionCommand");
 		keys.put(Action.MNEMONIC_KEY, "mnemonic");
@@ -60,13 +60,13 @@ public class LifeAction implements Action {
 	private int displayedMnemonicIndex = 0;
 	private KeyStroke accelerator = null;
 	private Icon[] icons = { null, null, null, null, null, null, null };
-//	private Icon[] largeIcons = { null, null, null, null, null, null, null };
+	// private Icon[] largeIcons = { null, null, null, null, null, null, null };
 	private int iconTextGap = 5;
 	private boolean enabled = true;
 	private boolean visible = true;
 	private boolean selected = false;
 	private ButtonModel model = null;
-	
+
 	private ActionListener listener;
 
 	public LifeAction() {
@@ -75,9 +75,9 @@ public class LifeAction implements Action {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(listener != null)
+		if (listener != null)
 			listener.actionPerformed(e);
-//		Application.app.runner.grabFocus();
+		// Application.app.runner.grabFocus();
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class LifeAction implements Action {
 
 	@Override
 	public void setEnabled(boolean b) {
-		if(enabled != b) {
+		if (enabled != b) {
 			enabled = b;
 			changeSupport.firePropertyChange("enabled", !enabled, enabled);
 		}
@@ -106,54 +106,62 @@ public class LifeAction implements Action {
 	@Override
 	public Object getValue(String key) {
 		String keyTranslated = KEYS.get(key);
-		if(keyTranslated != null)
+		if (keyTranslated != null)
 			key = keyTranslated;
 
 		String mname = "get" + key;
-		for(Method m : getClass().getMethods()) {
+		for (Method m : getClass().getMethods()) {
 			Class<?>[] params = m.getParameterTypes();
-			if(mname.equalsIgnoreCase(m.getName())
-					&& (params == null || params.length == 0)) {
-				try { return m.invoke(this); }
-				catch(InvocationTargetException e) {
+			if (mname.equalsIgnoreCase(m.getName()) && (params == null || params.length == 0)) {
+				try {
+					return m.invoke(this);
+				} catch (InvocationTargetException e) {
 					throw new RuntimeException(e);
-				} catch(IllegalAccessException e) {
+				} catch (IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}
 			}
 		}
-		throw new RuntimeException("Method �et" + key.substring(0, 1).toUpperCase() + key.substring(1) + "() not found");
+		throw new RuntimeException(
+				"Method �et" + key.substring(0, 1).toUpperCase() + key.substring(1) + "() not found");
 	}
 
 	@Override
 	public void putValue(String key, Object value) {
 		String keyTranslated = KEYS.get(key);
-		if(keyTranslated != null)
+		if (keyTranslated != null)
 			key = keyTranslated;
 
 		String mname = "get" + key;
 		try {
-		for(Method m : getClass().getMethods()) {
-			Class<?>[] params = m.getParameterTypes();
-			if(mname.equalsIgnoreCase(m.getName())
-					&& params != null && params.length == 1) {
-				Class<?> c = m.getParameterTypes()[0];
-				if(c == boolean.class) c = Boolean.class;
-				if(c == char.class) c = Character.class;
-				if(c == byte.class) c = Byte.class;
-				if(c == short.class) c = Short.class;
-				if(c == int.class) c = Integer.class;
-				if(c == long.class) c = Long.class;
-				if(c.isAssignableFrom(value.getClass())) {
-					m.invoke(this, value);
-					return;
+			for (Method m : getClass().getMethods()) {
+				Class<?>[] params = m.getParameterTypes();
+				if (mname.equalsIgnoreCase(m.getName()) && params != null && params.length == 1) {
+					Class<?> c = m.getParameterTypes()[0];
+					if (c == boolean.class)
+						c = Boolean.class;
+					if (c == char.class)
+						c = Character.class;
+					if (c == byte.class)
+						c = Byte.class;
+					if (c == short.class)
+						c = Short.class;
+					if (c == int.class)
+						c = Integer.class;
+					if (c == long.class)
+						c = Long.class;
+					if (c.isAssignableFrom(value.getClass())) {
+						m.invoke(this, value);
+						return;
+					}
 				}
 			}
-		} } catch(InvocationTargetException | IllegalAccessException e) {
+		} catch (InvocationTargetException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 
-		throw new RuntimeException("Method set" + key.substring(0, 1).toUpperCase() + key.substring(1) + "(" + value.getClass().getCanonicalName() + ") not found");
+		throw new RuntimeException("Method set" + key.substring(0, 1).toUpperCase() + key.substring(1) + "("
+				+ value.getClass().getCanonicalName() + ") not found");
 	}
 
 	public String getText() {
@@ -231,7 +239,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setIcon(String path) {
-		setIcon (new ImageIcon(Tools.loadImage(path)));
+		setIcon(new ImageIcon(Tools.loadImage(path)));
 	}
 
 	public Icon getSelectedIcon() {
@@ -245,7 +253,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setSelectedIcon(String path) {
-		setSelectedIcon (new ImageIcon(Tools.loadImage(path)));
+		setSelectedIcon(new ImageIcon(Tools.loadImage(path)));
 	}
 
 	public Icon getPressedIcon() {
@@ -259,7 +267,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setPressedIcon(String path) {
-		setPressedIcon (new ImageIcon(Tools.loadImage(path)));
+		setPressedIcon(new ImageIcon(Tools.loadImage(path)));
 	}
 
 	public Icon getRolloverIcon() {
@@ -273,7 +281,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setRolloverIcon(String path) {
-		setRolloverIcon (new ImageIcon(Tools.loadImage(path)));
+		setRolloverIcon(new ImageIcon(Tools.loadImage(path)));
 	}
 
 	public Icon getDisabledIcon() {
@@ -287,7 +295,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setDisabledIcon(String path) {
-		setDisabledIcon (new ImageIcon(Tools.loadImage(path)));
+		setDisabledIcon(new ImageIcon(Tools.loadImage(path)));
 	}
 
 	public Icon getRolloverSelectedIcon() {
@@ -301,7 +309,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setRolloverSelectedIcon(String path) {
-		setRolloverSelectedIcon (new ImageIcon(Tools.loadImage(path)));
+		setRolloverSelectedIcon(new ImageIcon(Tools.loadImage(path)));
 	}
 
 	public Icon getDisabledSelectedIcon() {
@@ -315,7 +323,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setDisabledSelectedIcon(String path) {
-		setDisabledSelectedIcon (new ImageIcon(Tools.loadImage(path)));
+		setDisabledSelectedIcon(new ImageIcon(Tools.loadImage(path)));
 	}
 
 	public int getIconTextGap() {
@@ -337,7 +345,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setVisible(boolean v) {
-		if(visible != v) {
+		if (visible != v) {
 			visible = v;
 			changeSupport.firePropertyChange("iconTextGap", !visible, visible);
 		}
@@ -348,7 +356,7 @@ public class LifeAction implements Action {
 	}
 
 	public void setSelected(boolean v) {
-		if(selected != v) {
+		if (selected != v) {
 			selected = v;
 			changeSupport.firePropertyChange("iconTextGap", !selected, selected);
 		}
@@ -357,7 +365,7 @@ public class LifeAction implements Action {
 	public ButtonModel getModel() {
 		return model;
 	}
-	
+
 	public void setModel(ButtonModel model) {
 		ButtonModel old = this.model;
 		this.model = model;

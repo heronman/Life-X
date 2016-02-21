@@ -1,8 +1,11 @@
 package net.agl.life.model;
 
 import java.awt.Dimension;
+import java.awt.Point;
 
 public interface Life {
+	public static final Formula DEFAULT_FORMULA = new Formula(3, 2, 3);
+
 	static final class Formula {
 		public final int burn;
 		public final int surviveMin;
@@ -22,13 +25,12 @@ public interface Life {
 
 		@Override
 		public boolean equals(Object o) {
-			if(o == this) return true;
-			if(!(o instanceof Formula))
+			if (o == this)
+				return true;
+			if (!(o instanceof Formula))
 				return false;
 			Formula f = (Formula) o;
-			return f.burn == burn
-					&& f.surviveMin == surviveMin
-					&& f.surviveMax == surviveMax;
+			return f.burn == burn && f.surviveMin == surviveMin && f.surviveMax == surviveMax;
 		}
 
 		@Override
@@ -48,23 +50,38 @@ public interface Life {
 	}
 
 	Formula getFormula();
+
 	public void setFormula(Formula f);
+
 	public void setFormula(int burn, int smin, int smax);
 
 	public boolean[][] getData();
+
 	public byte[] pack();
+
 	public boolean unpack(byte[] data, int cols, int rows);
 
 	public boolean isValid(int x, int y);
+
 	public int getAlives();
+
 	public Dimension getSize();
+
 	public int getCols();
+
 	public int getRows();
-	public void setSize(int width, int height);
+
+	public Point getTopLeft();
+
+	// public void setSize(int width, int height);
 
 	public void clear();
+
 	public boolean test(int x, int y);
+
 	public void burn(int x, int y);
+
 	public void kill(int x, int y);
+
 	public Life turn();
 }

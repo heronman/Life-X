@@ -6,18 +6,20 @@ import java.awt.Cursor;
 import net.agl.life.tools.Tools;
 
 public class Config {
-	private Config() {}
-	
+	private Config() {
+	}
+
 	public static final String appName = "Game of Life";
 	public static final String appIcon = "icons/app-icon.png";
 
-	public static final Cursor curSelect = Cursor
-			.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR),
+	public static final Cursor curSelect = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR),
 			curMoveReady = Tools.makeCursor("handopen", "cursor/openhand.gif", 6, 3),
 			curMove = Tools.makeCursor("handgrab", "cursor/closedhand.gif", 8, 2),
 			curCopyReady = Tools.makeCursor("handopen", "cursor/openhand-plus.gif", 6, 3),
-			curCopy = Tools.makeCursor("handgrab", "cursor/closedhand-plus.gif", 8, 2),
-			curBurn = null,//mkCursor("handgrab", "cursor/burn.gif", 8, 8),
+			curCopy = Tools.makeCursor("handgrab", "cursor/closedhand-plus.gif", 8, 2), curBurn = null, // mkCursor("handgrab",
+																										// "cursor/burn.gif",
+																										// 8,
+																										// 8),
 			curKill = Tools.makeCursor("handgrab", "cursor/kill.gif", 8, 8);
 
 	public static final int cellsize = 10;
