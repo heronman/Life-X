@@ -3,6 +3,7 @@ package net.agl.life.config;
 import java.awt.Color;
 import java.awt.Cursor;
 
+import net.agl.life.model.Life;
 import net.agl.life.tools.Tools;
 
 public class Config {
@@ -23,10 +24,12 @@ public class Config {
 			curKill = Tools.makeCursor("handgrab", "cursor/kill.gif", 8, 8);
 
 	public static final int cellsize = 10;
+	public static final int minCellsize = 1;
+	public static final int maxCellsize = 30;
 	public static final int gridMinSize = 3;
-	public static final int cols = 1000;
-	public static final int rows = 1000;
-	public static final int burn = 3, surviveMin = 2, surviveMax = 3;
+//	public static final int cols = 1000;
+//	public static final int rows = 1000;
+	public static final Life.Formula formula = Life.DEFAULT_FORMULA;
 	public static final int timegap = 100;
 
 	// public static final Color colorRulerBackground = Color.lightGray;

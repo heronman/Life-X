@@ -22,7 +22,7 @@ public class LifeStatusBar extends JPanel {
 		((FlowLayout)getLayout()).setAlignment(FlowLayout.LEFT);
 
 		labelAlives = new JLabel("999999");
-		labelCurrent = new JLabel("999:999");
+		labelCurrent = new JLabel("9999:9999");
 		labelCellSize = new JLabel("99:99");
 		labelFieldSize = new JLabel("1000:1000");
 		labelCounter = new JLabel("00000");

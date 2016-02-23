@@ -1,73 +1,9 @@
 package net.agl.life.model;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.HashSet;
 import java.util.Set;
 
 public class LifeInfinity implements Life {
-
-	@SuppressWarnings("serial")
-	private static class LifeSet extends HashSet<Point> {
-
-		protected Point tl = new Point(0, 0), br = new Point(-1, -1);
-
-		public LifeSet() {
-			super();
-		}
-
-		@Override
-		public boolean add(Point p) {
-			if (p == null)
-				throw new RuntimeException("Can't add null point");
-			p = new Point(p);
-			boolean empty = isEmpty();
-			if (super.add(p)) {
-				if (empty) {
-					tl.x = br.x = p.x;
-					tl.y = br.y = p.y;
-				} else {
-					if (tl.x > p.x)
-						tl.x = p.x;
-					if (tl.y > p.y)
-						tl.y = p.y;
-					if (br.x < p.x)
-						br.x = p.x;
-					if (br.y < p.y)
-						br.y = p.y;
-				}
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		private void recalcCorners() {
-			tl.x = tl.y = 0;
-			br.x = br.y = -1;
-			if (isEmpty())
-				return;
-
-			for (Point p : this) {
-				if (tl.x > p.x)
-					tl.x = p.x;
-				if (tl.y > p.y)
-					tl.y = p.y;
-				if (br.x < p.x)
-					br.x = p.x;
-				if (br.y < p.y)
-					br.y = p.y;
-			}
-		}
-
-		@Override
-		public boolean remove(Object o) {
-			if (!super.remove(o))
-				return false;
-			recalcCorners();
-			return true;
-		}
-	}
 
 	private LifeSet map;
 	private Formula formula;
@@ -89,136 +25,151 @@ public class LifeInfinity implements Life {
 
 	@Override
 	public void setFormula(Formula formula) {
-		this.formula = formula;
+		synchronized(map) {
+			this.formula = formula;
+		}
 	}
 
 	@Override
 	public void setFormula(int burn, int smin, int smax) {
-		this.formula = new Formula(burn, smin, smax);
+		synchronized(map) {
+			this.formula = new Formula(burn, smin, smax);
+		}
 	}
 
 	@Override
 	public boolean[][] getData() {
-		boolean[][] arr = new boolean[getRows()][getCols()];
-		for (Point p : map) {
-			arr[p.y - map.tl.y][p.x - map.tl.x] = true;
+		synchronized(map) {
+			if(map.size() == 0)
+				return null;
+			boolean[][] arr = new boolean[getRows()][getCols()];
+			for (LifeCell cell : map) {
+				arr[cell.y - map.tl.y][cell.x - map.tl.x] = true;
+			}
+			return arr;
 		}
-		return arr;
+	}
+
+	@Override
+	public void setData(boolean[][] data) {
+		synchronized(map) {
+			clear();
+
+			for(int y = 0; y < data.length; y++) {
+				for(int x = 0; x < data[y].length; x++) {
+					if(data[y][x])
+						map.add(new LifeCell(x, y));
+				}
+			}
+		}
 	}
 
 	@Override
 	public byte[] pack() {
-		int wd = getCols(), ht = getRows();
-		int mapSize = wd * ht;
-		int size = mapSize / 8 + ((mapSize % 8) != 0 ? 1 : 0);
-		byte[] arr = new byte[size];
-		for (Point p : map) {
-			int index = (p.y - map.tl.y) * wd + (p.x - map.tl.x);
-			arr[index / 8] |= (1 << (index % 8));
+		synchronized(map) {
+			int wd = getCols(), ht = getRows();
+			int mapSize = wd * ht;
+			int size = mapSize / 8 + ((mapSize % 8) != 0 ? 1 : 0);
+			byte[] arr = new byte[size];
+			for (LifeCell cell : map) {
+				int index = (cell.y - map.tl.y) * wd + (cell.x - map.tl.x);
+				arr[index / 8] |= (1 << (index % 8));
+			}
+			return arr;
 		}
-		return arr;
 	}
 
 	@Override
 	public boolean unpack(byte[] data, int cols, int rows) {
-		clear();
+		synchronized(map) {
+			clear();
 
-		for (int y = 0; y < rows; y++) {
-			for (int x = 0; x < cols; x++) {
-				int index = y * cols + x;
-				byte b = data[index / 8];
-				if ((b & (1 << (index % 8))) != 0)
-					map.add(new Point(x, y));
+			for (int y = 0; y < rows; y++) {
+				for (int x = 0; x < cols; x++) {
+					int index = y * cols + x;
+					byte b = data[index / 8];
+					if ((b & (1 << (index % 8))) != 0)
+						map.add(new LifeCell(x, y));
+				}
 			}
+
+			return true;
 		}
-
-		return true;
-	}
-
-	@Override
-	public boolean isValid(int x, int y) {
-		return true;
 	}
 
 	@Override
 	public int getAlives() {
-		return map.size();
+		synchronized(map) {
+			return map.size();
+		}
 	}
 
 	@Override
 	public void clear() {
-		map.clear();
+		synchronized(map) {
+			map.clear();
+		}
 	}
 
 	@Override
 	public boolean test(int x, int y) {
-		return map.contains(new Point(x, y));
+		return test(new LifeCell(x, y));
 	}
 
-	public boolean test(Point p) {
-		return map.contains(p);
-	}
-
-	@Override
-	public void burn(int x, int y) {
-		map.add(new Point(x, y));
-	}
-
-	public void burn(Point p) {
-		map.add(p);
+	public boolean test(LifeCell cell) {
+		synchronized(map) {
+			return map.contains(cell);
+		}
 	}
 
 	@Override
-	public void kill(int x, int y) {
-		map.remove(new Point(x, y));
+	public void burn(final int x, final int y) {
+		burn(new LifeCell(x, y));
 	}
 
-	public void kill(Point p) {
-		map.remove(p);
+	public void burn(final LifeCell cell) {
+		synchronized(map) {
+			map.add(cell);
+		}
 	}
 
-	private void processPoint(Point p, boolean alive, Set<Point> target, Set<Point> ready) {
+	@Override
+	public void kill(final int x, final int y) {
+		kill(new LifeCell(x, y));
+	}
+
+	public void kill(final LifeCell cell) {
+		synchronized(map) {
+			map.remove(cell);
+		}
+	}
+
+	private void processPoint(LifeCell cell, boolean alive, Set<LifeCell> target, Set<LifeCell> ready) {
 		int n = 0;
 
-		Point test = new Point();
+		LifeCell test = new LifeCell();
 		for (int y = -1; y <= 1; y++) {
 			for (int x = -1; x <= 1; x++) {
 				if ((x | y) == 0)
 					continue;
-				test.x = p.x + x;
-				test.y = p.y + y;
-				if (map.contains(test)) { // alive: just increase the counter
+				test.x = cell.x + x;
+				test.y = cell.y + y;
+				if (map.contains(test)) {
 					n++;
-				} else if (ready != null && !ready.contains(test)) { // dead:
-																		// process
-																		// it if
-																		// not
-																		// yet
-																		// processed
-					/*
-					 * if the point is dead in the current set and it is a close
-					 * neighbor of the target point we have to test it too,
-					 * immediately, in the current loop. Also we have to add
-					 * that point to the ready-list to avoid double-testing it.
-					 * If ready list is not set (null), then it was probably a
-					 * subsequent call and we do not need to test neighbors
-					 * deeply.
-					 */
-
-					ready.add(test); // prevent of multiple processing
-					processPoint(test, false, target, null); // for subsequent
-																// call, set
-																// ready to null
+				} else if (ready != null && !ready.contains(test)) {
+					LifeCell nc = test.clone();
+					ready.add(nc);
+					processPoint(nc, false, target, null);
 				}
 			}
 		}
 
 		if (alive) {
 			if (n >= formula.surviveMin && n <= formula.surviveMax)
-				target.add(p);
+				target.add(cell);
 		} else {
 			if (n == formula.burn)
-				target.add(p);
+				target.add(cell);
 		}
 	}
 
@@ -226,31 +177,58 @@ public class LifeInfinity implements Life {
 	public Life turn() {
 		LifeInfinity next = new LifeInfinity(formula);
 
-		Set<Point> ready = new HashSet<Point>();
-		for (Point p : map) {
-			processPoint(p, true, next.map, ready);
+		Set<LifeCell> ready = new HashSet<LifeCell>();
+
+		synchronized(map) {
+			for (LifeCell cell : map) {
+				processPoint(cell, true, next.map, ready);
+			}
 		}
 
 		return next;
 	}
 
 	@Override
-	public Point getTopLeft() {
-		return new Point(map.tl);
+	public int getMaxCols() {
+		return Integer.MAX_VALUE;
 	}
 
 	@Override
-	public Dimension getSize() {
-		return new Dimension(getCols(), getCols());
+	public int getMaxRows() {
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public int getTop() {
+		return map.tl == null ? 0 : map.tl.y;
+	}
+
+	@Override
+	public int getLeft() {
+		return map.tl == null ? 0 : map.tl.x;
+	}
+
+	@Override
+	public int getBottom() {
+		return map.br == null ? -1 : map.br.y;
+	}
+
+	@Override
+	public int getRight() {
+		return map.br == null ? -1 : map.br.x;
 	}
 
 	@Override
 	public int getCols() {
+		if(map.tl == null || map.br == null)
+			return 0;
 		return map.br.x - map.tl.x + 1;
 	}
 
 	@Override
 	public int getRows() {
+		if(map.tl == null || map.br == null)
+			return 0;
 		return map.br.y - map.tl.y + 1;
 	}
 

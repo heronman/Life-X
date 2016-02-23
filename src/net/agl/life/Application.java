@@ -1,8 +1,12 @@
 package net.agl.life;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 
 import javax.swing.ActionMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
@@ -35,23 +39,35 @@ public class Application implements Runnable {
 		actionsController = new ActionsController();
 		actions = new LifeActionMap(actionsController);
 		statusBar = new LifeStatusBar();
-		statusBar.setFocusable(false);
 		toolBar = new LifeToolBar(actions);
-		toolBar.setFocusable(false);
 		menuBar = new LifeMenu(actions);
-		menuBar.setFocusable(false);
 		runner = new LifeRunner();
-		runner.setFocusable(true);
 		controller = new LifeController(this);
 		ui = new JPanel();
-		ui.setFocusable(false);
+	}
+
+	@SuppressWarnings("serial")
+	public static class Corner extends JComponent {
+		@Override
+		protected void paintComponent(Graphics g) {
+			g.setColor(Color.gray);
+			g.fillRect(0, 0, getWidth(), getHeight());
+		}
 	}
 
 	private void createAndShowGUI() {
+		statusBar.setFocusable(false);
+		toolBar.setFocusable(false);
+		menuBar.setFocusable(false);
+		runner.setFocusable(true);
+		ui.setFocusable(false);
+
 		frame.setContentPane(ui);
 		ui.setLayout(new BorderLayout());
 		ui.add(toolBar, BorderLayout.NORTH);
 		ui.add(statusBar, BorderLayout.SOUTH);
+
+		runner.setPreferredSize(new Dimension(300, 300));
 		ui.add(runner, BorderLayout.CENTER);
 
 		frame.setTitle(Config.appName);

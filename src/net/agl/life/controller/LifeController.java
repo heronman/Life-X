@@ -1,27 +1,36 @@
 package net.agl.life.controller;
 
 import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 
 import net.agl.life.Application;
 import net.agl.life.config.Config;
 import net.agl.life.model.Life;
 //import net.agl.life.model.LifeBBA;
 import net.agl.life.model.LifeInfinity;
+import net.agl.life.view.ILifeView;
 
-public class LifeController implements MouseWheelListener, MouseMotionListener, MouseListener, KeyListener {
+public class LifeController implements ILifeController {
 
-	private static final int MM_NONE = 0, MM_BURN = 1, MM_KILL = 2, MM_INV_READY = 3, MM_INVERSE = 4,
-			MM_SELECT_READY = 5, MM_SELECT = 6, MM_DRAG_READY = 7, MM_DRAG = 8, MM_COPY_READY = 9, MM_COPY_SEL = 10,
-			MM_MOVE_READY = 11, MM_MOVE_SEL = 12;
+	private static final int
+			MM_NONE = 0,
+			MM_BURN = 1,
+			MM_KILL = 2,
+			MM_INV_READY = 3,
+			MM_INVERSE = 4,
+			MM_SELECT_READY = 5,
+			MM_SELECT = 6,
+			MM_DRAG_READY = 7,
+			MM_DRAG = 8,
+			MM_COPY_READY = 9,
+			MM_COPY_SEL = 10,
+			MM_MOVE_READY = 11,
+			MM_MOVE_SEL = 12;
 
 	// private ActionsController actionsController;
 	// private ActionMap actions;
@@ -31,7 +40,8 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 	private Application app;
 
 	private int cellSize = Config.cellsize;
-	private int cellX = -1, cellY = -1;
+	private Point current = null;
+	private Point mouse = null;
 	private int mode = MM_NONE;
 	private int keyPressed = -1;
 	private Rectangle selection, selectionFrame;
@@ -42,7 +52,6 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 		life = new LifeInfinity();
 
 		app.actionsController.addResponder(this);
-		app.statusBar.labelFieldSize.setText(Config.cols + "x" + Config.rows);
 		app.statusBar.labelCellSize.setText(String.valueOf(cellSize));
 
 		app.runner.setLife(life);
@@ -51,16 +60,6 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 		app.runner.addMouseWheelListener(this);
 
 		// app.runner.addKeyListener(this);
-	}
-
-	public void setLifeSize(int cols, int rows) {
-		if (cols <= 0 || rows <= 0) {
-			// TODO: error report
-			return;
-		}
-		// life.setSize(cols, rows);
-		app.statusBar.labelFieldSize.setText(cols + "x" + rows);
-		app.runner.repaint();
 	}
 
 	private void setCursor() {
@@ -101,7 +100,7 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		int newsize = Math.max(1, Math.min(30, cellSize - e.getWheelRotation()));
+		int newsize = Math.max(Config.minCellsize, Math.min(Config.maxCellsize, cellSize - e.getWheelRotation()));
 		if (newsize == cellSize) {
 			return;
 		}
@@ -120,35 +119,26 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 		mouseMoved(e, true);
 	}
 
-	private Integer lastX = null, lastY = null;
-
 	public void mouseMoved(MouseEvent e, boolean dragging) {
-		int col = app.runner.getCol(e.getX());
-		int row = app.runner.getRow(e.getY());
+		int col = app.runner.getCol(e.getX()),
+				row = app.runner.getRow(e.getY());
 
-		if (mode == MM_DRAG && lastX != null && lastY != null) {
-			app.runner.shift(lastX - e.getX(), lastY - e.getY());
-			lastX = e.getX();
-			lastY = e.getY();
+		if (mode == MM_DRAG && mouse != null) {
+			app.runner.shift(mouse.x - e.getX(), mouse.y - e.getY());
+			mouse.setLocation(e.getX(), e.getY());
 			return;
 		}
-		lastX = e.getX();
-		lastY = e.getY();
 
-		if (!life.isValid(col, row)) {
-			col = row = -1;
-		}
+		if(mouse != null)
+			mouse.setLocation(e.getPoint());
+		else
+			mouse = e.getPoint();
 
-		if (col != cellX || row != cellY) {
-			/*
-			 * int onmask = SHIFT_DOWN_MASK | BUTTON1_DOWN_MASK; int offmask =
-			 * CTRL_DOWN_MASK; if ((event.getModifiersEx() & (onmask | offmask))
-			 * == onmask) { ... }
-			 */
-			cellX = col;
-			cellY = row;
-			app.runner.updateCursorCell(col, row);
-			app.statusBar.labelCurrent.setText(col >= 0 && row >= 0 ? col + ":" + row : "");
+		if (current == null || current.x != col || current.y != row) {
+			if(current != null)
+				current.setLocation(col, row);
+			else
+				current = new Point(col, row);
 
 			if (mode == MM_BURN || mode == MM_KILL || mode == MM_INVERSE) {
 				boolean b;
@@ -161,24 +151,22 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 				}
 				alterCell(col, row, b);
 			}
+
+			app.runner.updateCursorCell(col, row);
 		}
+		app.statusBar.labelCurrent.setText(current.x + ":" + current.y);
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
-	}
+	public void mouseClicked(MouseEvent arg0) {}
 
 	@Override
-	public void mouseEntered(MouseEvent arg0) {
-	}
+	public void mouseEntered(MouseEvent arg0) {}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		if (cellX >= 0 || cellY >= 0) {
-			cellX = cellY = -1;
-			app.runner.updateCursorCell(cellX, cellY);
-		}
-		lastX = lastY = null;
+		app.runner.resetCursorCell();
+		app.statusBar.labelCurrent.setText("");
 	}
 
 	@Override
@@ -200,13 +188,13 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 
 		switch (mode) {
 		case MM_BURN:
-			life.burn(cellX, cellY);
-			app.runner.updateCell(cellX, cellY);
+			life.burn(current.x, current.y);
+			app.runner.updateCell(current.x, current.y);
 			app.statusBar.labelAlives.setText(String.valueOf(life.getAlives()));
 			break;
 		case MM_KILL:
-			life.kill(cellX, cellY);
-			app.runner.updateCell(cellX, cellY);
+			life.kill(current.x, current.y);
+			app.runner.updateCell(current.x, current.y);
 			app.statusBar.labelAlives.setText(String.valueOf(life.getAlives()));
 			break;
 		}
@@ -233,7 +221,7 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 			return;
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_CONTROL:
-			if (selection != null && selection.contains(cellX, cellY))
+			if (selection != null && selection.contains(current.x, current.y))
 				mode = MM_COPY_READY;
 			else
 				mode = MM_SELECT_READY;
@@ -242,7 +230,7 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 			mode = MM_INV_READY;
 			break;
 		case KeyEvent.VK_SHIFT:
-			if (selection != null && selection.contains(cellX, cellY))
+			if (selection != null && selection.contains(current.x, current.y))
 				mode = MM_MOVE_READY;
 			break;
 		case KeyEvent.VK_SPACE:
@@ -305,8 +293,6 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 	}
 
 	public void actionStop(ActionEvent e) {
-		Object o = e.getSource();
-		System.out.println("Action top: " + o.getClass().getName());
 		running = false;
 		displayRunningState();
 	}
@@ -319,12 +305,30 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 		System.exit(0);
 	}
 
+	public void actionNew(ActionEvent e) {
+		if(running) {
+			running = false;
+			displayRunningState();
+		}
+		life.clear();
+		app.runner.setOffset(0, 0);
+		current.x = app.runner.getCol(mouse.x);
+		current.y = app.runner.getRow(mouse.y);
+		app.statusBar.labelFieldSize.setText(life.getCols() + "x" + life.getRows());
+		app.statusBar.labelFieldSize.validate();
+		app.statusBar.labelAlives.setText(String.valueOf(life.getAlives()));
+		app.statusBar.labelCounter.setText(String.valueOf(step));
+		app.statusBar.labelCurrent.setText(current.x + ":" + current.y);
+	}
+
 	private int step = 0;
 
 	private void step() {
 		step++;
 		life = life.turn();
 		app.runner.setLife(life);
+		app.statusBar.labelFieldSize.setText(life.getCols() + "x" + life.getRows());
+		app.statusBar.labelFieldSize.validate();
 		app.statusBar.labelAlives.setText(String.valueOf(life.getAlives()));
 		app.statusBar.labelCounter.setText(String.valueOf(step));
 	}
@@ -336,4 +340,33 @@ public class LifeController implements MouseWheelListener, MouseMotionListener, 
 			life.kill(col, row);
 		app.statusBar.labelAlives.setText(String.valueOf(life.getAlives()));
 	}
+
+	////////////////////////////////////////////
+	@Override
+	public ILifeView getView() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setView(ILifeView view) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getCellSize() {
+		return cellSize;
+	}
+
+	@Override
+	public boolean testCell(int col, int row) {
+		return life.test(col, row);
+	}
+
+	@Override
+	public Point getCursor() {
+		return current;
+	}
+
 }
