@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="WBroadcaster" default="jar" basedir=".">
+	<property name="project.home.dir" value="."/>
+	<property name="jar.filename" value="life.jar"/>
+	<property name="core.build.dir" value="bin"/>
+
+	<target name="jar">
+		<jar jarfile="${project.home.dir}/${jar.filename}">
+			<fileset dir="${project.home.dir}/${core.build.dir}"/>
+		</jar>
+	</target>
+	
+</project>
